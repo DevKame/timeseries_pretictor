@@ -1,6 +1,7 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import StreamingResponse
 import os
+import pandas as pd
 
 app = FastAPI()
 
@@ -14,11 +15,9 @@ async def dummy(file: UploadFile = File(...)):
     if not os.path.exists(csv_file_path):
         return {"error": "CSV file not found"}
 
-    # Open the CSV file and return as a streaming response
-    with open(csv_file_path, mode='rb') as csv_file:
-        csv_content = csv_file.read()
+    df = pd.read_csv(csv_file_path)
 
-    return StreamingResponse(iter([csv_content]), media_type="text/csv", headers={"Content-Disposition": "attachment;filename=data.csv"}) 
+    return df.to_dict("dict") 
 
 if __name__ == "__main__":
     import uvicorn
